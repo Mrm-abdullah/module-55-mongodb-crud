@@ -1,0 +1,198 @@
+user: mrmabdullah2024
+Pass: LJn5_5sAn_bXD6_VM9Z
+
+1. npm install mongodb
+2. index.js >>
+
+const express = require('express')
+const app = express()
+const cors = require('cors')
+const port = process.env.PORT || 5000;
+const { MongoClient, ServerApiVersion } = require('mongodb');
+
+
+// middleware
+app.use(cors());
+app.use(express.json());
+
+go to>>> mongodb>database > connect > drivers > 3 no view full <code></code>
+
+const uri = "mongodb+srv://mrmabdullah2024:bXD6VM9ZLJn55sAn@cluster0.okzu8ip.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+async function run() {
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+
+    app.post('/users', async(req, res) => {
+      const user = req.body;
+      console.log(user);
+  })
+
+    // Send a ping to confirm a successful connection
+    await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    // Ensures that the client will close when you finish/error
+    // await client.close();
+  }
+}
+run().catch(console.dir);
+
+
+app.get('/', (req, res) => {
+    res.send('Hello World!')
+})
+
+app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`)
+})
+
+
+
+>>>>>>>>>>>>>>>>>
+go to https://www.mongodb.com/docs/drivers/node/current/usage-examples/insertOne/
+
+Usage Examples > Find Operations > Insert Operations > Insert a Document
+
+>>>>> change
+try {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+    const database = client.db("usersDB");
+    const userColection = database.collection("users");
+
+
+    app.post('/users', async(req, res) => {
+      const user = req.body;
+      console.log(user);
+      const result = await userColection.insertOne(user);
+      res.send(result);
+  })
+
+
+ck>>>>>> database >browse collection > users
+
+
+<!-- =========================================================================== -->
+                                <!-- data get korte -->
+<!-- =========================================================================== -->
+go to >>>> https://www.mongodb.com/docs/drivers/node/current/usage-examples/findOne/
+
+app.get('/users', async(req, res) => {
+    const cursor = userColection.find()
+    const result = await cursor.toArray()
+    res.send(result)
+  })
+
+
+main.jsx>>>>
+{
+    path: "/users",
+    element: <Users></Users>,
+    loader: () => fetch('http://localhost:5000/users')
+  },
+
+users.jsx>>>>
+const users = useLoaderData()
+<!-- <div>
+    {users.length}
+
+    {
+        users.map((user, idx) => <div key={idx}> {user._id}, {user.name}, {user.email}  <button onClick={() => handleUserDelet(user._id) } >delet</button></div>)
+    }
+</div> -->
+  
+<!-- =========================================================================== -->
+                                <!-- data delet korte -->
+<!-- =========================================================================== -->
+
+go to >>> https://www.mongodb.com/docs/drivers/node/current/usage-examples/deleteOne/
+
+index.js>>>
+
+app.delete('/users/:id', async(req, res) => {
+    const id = req.params.id
+    console.log('delerrrr', id);
+    const query = { _id: new ObjectId(id) };
+    const result = await userColection.deleteOne(query);
+    res.send(result);
+})
+
+
+<!-- =========================================================================== -->
+                                <!-- data update korte -->
+<!-- =========================================================================== -->
+
+
+go to >>>>> https://www.mongodb.com/docs/drivers/node/current/usage-examples/updateOne/
+
+
+app.get('/users/:id', async(req, res) => {
+    const id = req.params.id
+    const query = { _id: new ObjectId(id) };
+    const result = await userColection.deleteOne(query);
+    res.send(result)
+})
+
+
+
+app.put('/users/:id', async (req, res) => {
+    const id = req.params.id
+    const user = req.body;
+    console.log(user);
+    const query = { _id: new ObjectId(id) };
+    const options = { upsert: true };
+    const updateUser = {
+      $set: {
+        name: user.name,
+        email: user.email
+      },
+    };
+    const result = await userColection.updateOne(query, updateUser,options);
+    res.send(result);
+  })
+
+Update.jsx>>>>>>
+
+const handleUpdateUser = (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const name = form.name.value;
+    const email = form.email.value;
+    const updateUser = { name, email };
+
+    fetch(`http://localhost:5000/users/${loadedUser._id}`, {
+        method: 'PUT',
+        headers: {
+            'content-type': 'application/json'
+        },
+        body: JSON.stringify(updateUser)
+    })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);
+        })
+}
+
+<!--
+    <div>
+            {
+                loadedUser.name
+            }
+            <form onSubmit={handleUpdateUser}>
+                <input type="text" name='name' defaultValue={loadedUser?.name} /> <br />
+                <input type="email" name='email' defaultValue={loadedUser?.email} /><br />
+                <input type="submit" value='Submit' /><br />
+            </form>
+        </div>
+ -->
